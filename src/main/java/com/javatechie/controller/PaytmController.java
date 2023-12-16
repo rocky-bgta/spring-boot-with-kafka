@@ -10,6 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 @RestController
@@ -30,11 +31,16 @@ public class PaytmController {
 
     @PostMapping("/paytm/payment")
     public String doPayment(@RequestBody PaytmRequest<PaymentRequest> paytmRequest) throws JsonProcessingException {
-        PaymentRequest paymentRequest = paytmRequest.getPayload();
-        paymentRequest.setTransactionId(UUID.randomUUID().toString());
-        paymentRequest.setTxDate(new Date());
-        kafkaTemplate.send(topicName, paymentRequest);
+        for (int i = 1; i <= 500; i++) {
 
+            PaymentRequest paymentRequest = paytmRequest.getPayload();
+            paymentRequest.setSrcAc("SRC_AC" + i);
+            paymentRequest.setDestAc("SRC_DEST" + i);
+            paymentRequest.setAmount(new Random().nextInt(10000));
+            paymentRequest.setTransactionId(UUID.randomUUID().toString());
+            paymentRequest.setTxDate(new Date());
+            kafkaTemplate.send(topicName, paymentRequest);
+        }
         // send object as string
         //kafkaTemplate.send(topicName,new ObjectMapper().writeValueAsString(paymentRequest));
         return "payment instantiate successfully...";
