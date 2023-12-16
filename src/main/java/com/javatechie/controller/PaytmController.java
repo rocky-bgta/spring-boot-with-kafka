@@ -22,7 +22,7 @@ public class PaytmController {
     @GetMapping("/publish/{message}")
     public void sendMessage(@PathVariable String message) {
         for (int i = 0; i <= 10000; i++) {
-            kafkaTemplate.send("", message + i);
+            kafkaTemplate.send(topicName, message + i);
         }
     }
 
