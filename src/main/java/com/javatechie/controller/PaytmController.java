@@ -1,5 +1,7 @@
 package com.javatechie.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javatechie.dto.PaymentRequest;
 import com.javatechie.dto.PaytmRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +29,14 @@ public class PaytmController {
     }
 
     @PostMapping("/paytm/payment")
-    public String doPayment(@RequestBody PaytmRequest<PaymentRequest> paytmRequest) {
+    public String doPayment(@RequestBody PaytmRequest<PaymentRequest> paytmRequest) throws JsonProcessingException {
         PaymentRequest paymentRequest = paytmRequest.getPayload();
         paymentRequest.setTransactionId(UUID.randomUUID().toString());
         paymentRequest.setTxDate(new Date());
         kafkaTemplate.send(topicName, paymentRequest);
+
+        // send object as string
+        //kafkaTemplate.send(topicName,new ObjectMapper().writeValueAsString(paymentRequest));
         return "payment instantiate successfully...";
     }
 }
